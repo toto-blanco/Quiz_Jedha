@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game 🎮</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .lives-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .heart {
+            transition: all 0.3s ease;
+        }
+
+        .heart.lost {
+            opacity: 0.3;
+            transform: scale(0.8);
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .message.error {
+            background: #fee;
+            color: #c33;
+            border: 2px solid #fcc;
+        }
+
+        .message.success {
+            background: #efe;
+            color: #3c3;
+            border: 2px solid #cfc;
+        }
+
+        .message.gameover {
+            background: #333;
+            color: white;
+            font-size: 1.3em;
+        }
+
+        .message.victory {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            font-size: 1.3em;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Quiz Game</h1>
+        <p class="subtitle">Testez vos connaissances en culture générale !</p>
+        
+        <div class="lives-container" id="livesContainer">
+            <span class="heart">❤️</span>
+            <span class="heart">❤️</span>
+            <span class="heart">❤️</span>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+        </div>
+
+        <div id="messageContainer"></div>
+
+        <div id="quizContainer">
+            <div class="question-container">
+                <div class="question-number" id="questionNumber">Question 1/3</div>
+                <div class="question" id="questionText"></div>
+                <input type="text" id="answerInput" placeholder="Tapez votre réponse ici..." autocomplete="off">
+                <button id="submitBtn" onclick="checkAnswer()">Valider la réponse</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Combien de fois la France a-t-elle gagné la Coupe du Monde de Football ?",
+                answer: "2",
+                caseSensitive: false
+            },
+            {
+                question: "En quelle année Apple a-t-elle été fondée ?",
+                answer: "1976",
+                caseSensitive: false
+            },
+            {
+                question: "Qui a fondé SpaceX ?",
+                answer: "elon musk",
+                caseSensitive: false
+            }
+        ];
+
+        let currentQuestion = 0;
+        let lives = 3;
+
+        function init() {
+            displayQuestion();
+            document.getElementById('answerInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkAnswer();
+                }
+            });
+        }
+
+        function displayQuestion() {
+            if (currentQuestion < questions.length) {
+                document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1}/${questions.length}`;
+                document.getElementById('questionText').textContent = questions[currentQuestion].question;
+                document.getElementById('answerInput').value = '';
+                document.getElementById('answerInput').focus();
+                updateProgressBar();
+            }
+        }
+
+        function updateProgressBar() {
+            const progress = (currentQuestion / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function updateLives() {
+            const hearts = document.querySelectorAll('.heart');
+            hearts.forEach((heart, index) => {
+                if (index >= lives) {
+                    heart.classList.add('lost');
+                } else {
+                    heart.classList.remove('lost');
+                }
+            });
+        }
+
+        function showMessage(text, type) {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="message ${type}">${text}</div>`;
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById('answerInput').value.trim();
+            const currentQ = questions[currentQuestion];
+            const correctAnswer = currentQ.caseSensitive ? currentQ.answer : currentQ.answer.toLowerCase();
+            const userAnswerNormalized = currentQ.caseSensitive ? userAnswer : userAnswer.toLowerCase();
+
+            if (userAnswerNormalized === correctAnswer) {
+                showMessage('🎉 Bonne réponse !', 'success');
+                currentQuestion++;
+                
+                setTimeout(() => {
+                    if (currentQuestion < questions.length) {
+                        displayQuestion();
+                        document.getElementById('messageContainer').innerHTML = '';
+                    } else {
+                        victory();
+                    }
+                }, 1500);
+            } else {
+                lives--;
+                updateLives();
+                
+                if (lives === 0) {
+                    gameOver();
+                } else {
+                    showMessage(`😓 Mauvaise réponse... Il vous reste ${lives} chance${lives > 1 ? 's' : ''} !`, 'error');
+                    document.getElementById('answerInput').value = '';
+                    document.getElementById('answerInput').focus();
+                }
+            }
+        }
+
+        function gameOver() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            showMessage('💥 Game Over ! Vous avez perdu toutes vos chances.', 'gameover');
+            addRestartButton();
+        }
+
+        function victory() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            updateProgressBar();
+            document.getElementById('progressBar').style.width = '100%';
+            showMessage('🥳 Félicitations ! Vous avez gagné le quiz ! 🥳', 'victory');
+            addRestartButton();
+        }
+
+        function addRestartButton() {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML += '<button class="restart-btn" onclick="restart()">🔄 Rejouer</button>';
+        }
+
+        function restart() {
+            currentQuestion = 0;
+            lives = 3;
+            updateLives();
+            document.getElementById('quizContainer').classList.remove('hidden');
+            document.getElementById('messageContainer').innerHTML = '';
+            displayQuestion();
+        }
+
+        init();
+    </script>
+</body>
+</html>
